@@ -3,6 +3,7 @@ from gdelt import GDelt
 from itertools import permutations
 
 from .data_handler import load_hofstede_scores, load_wals_features
+from .translator import run_translation_chain
 
 
 def calculate_cds(country1_code: str, country2_code: str) -> float:
@@ -74,3 +75,12 @@ def select_diverse_languages(source_language: str, num_pivots: int = 3):
         candidate_langs.remove(best_lang)
         current = best_lang
     return best_path
+
+
+def translate_via_diverse_path(
+    source_text: str, source_language: str = "en", num_pivots: int = 3
+) -> list[tuple[str, str]]:
+    """Select a diverse language path and run sequential translations."""
+
+    path = select_diverse_languages(source_language, num_pivots)
+    return run_translation_chain(source_text, path)
