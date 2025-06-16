@@ -1,0 +1,4 @@
+language,code,feature1,feature2,feature3
+English,en,1,0,1
+Japanese,ja,0,1,1
+Chinese,zh,1,1,0
