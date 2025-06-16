@@ -10,6 +10,8 @@ if st.button("分析開始"):
         st.warning("テキストを入力してください")
     else:
         st.write("多様な言語経路を選択中...")
-        path = core_logic.select_diverse_languages('en')
-        st.write("多段階翻訳と意味分析を実行中...")
-        st.write(path)
+        translations = core_logic.translate_via_diverse_path(source_text, 'en')
+        st.write("翻訳結果:")
+        for lang, text in translations:
+            st.subheader(lang)
+            st.write(text)
