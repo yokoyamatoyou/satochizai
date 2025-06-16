@@ -1,6 +1,12 @@
 import numpy as np
 from gdelt import GDelt
 from itertools import permutations
+from typing import List
+
+from sentence_transformers import SentenceTransformer
+from sklearn.decomposition import PCA
+from sklearn.metrics.pairwise import cosine_distances
+import plotly.graph_objects as go
 
 from .data_handler import load_hofstede_scores, load_wals_features
 from .translator import run_translation_chain
@@ -84,3 +90,50 @@ def translate_via_diverse_path(
 
     path = select_diverse_languages(source_language, num_pivots)
     return run_translation_chain(source_text, path)
+
+
+# ----- Phase 3: Semantic Analysis and Visualization -----
+
+_embedding_model: SentenceTransformer | None = None
+
+
+def get_embedding(text: str) -> np.ndarray:
+    """Return sentence embedding for the given text."""
+    global _embedding_model
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    emb = _embedding_model.encode(text)
+    return np.array(emb)
+
+
+def calculate_semantic_drift(texts: List[str]) -> List[float]:
+    """Return cosine distances between consecutive texts."""
+    embeddings = [get_embedding(t) for t in texts]
+    drift = []
+    for i in range(1, len(embeddings)):
+        dist = cosine_distances([embeddings[i - 1]], [embeddings[i]])[0][0]
+        drift.append(float(dist))
+    return drift
+
+
+def generate_trajectory_plot(texts: List[str], labels: List[str]):
+    """Return a Plotly figure visualizing translation trajectory."""
+    embeddings = [get_embedding(t) for t in texts]
+    pca = PCA(n_components=2)
+    points = pca.fit_transform(embeddings)
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=points[:, 0],
+            y=points[:, 1],
+            mode="lines+markers",
+            text=labels,
+        )
+    )
+    fig.update_layout(
+        xaxis_title="Component 1",
+        yaxis_title="Component 2",
+        showlegend=False,
+    )
+    return fig

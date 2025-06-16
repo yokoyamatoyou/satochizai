@@ -13,3 +13,6 @@ See MVP_PLAN.md for the development plan.
    ```bash
    streamlit run diverse_perspective_mvp/app.py
    ```
+
+Phase 3 utilities for semantic drift analysis and trajectory visualization are
+implemented in `diverse_perspective_mvp/core_logic.py`.
