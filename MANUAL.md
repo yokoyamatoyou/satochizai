@@ -24,6 +24,7 @@ This manual summarizes the tasks and procedures required to build the "Multi-Per
    |-- /data
    ```
 2. Install required libraries listed in `requirements.txt`.
+Refer to `PHASE1_INSTRUCTIONS.md` for detailed steps to begin Phase 1.
 
 ### Phase 2: Data Retrieval and Preparation
 1. Implement `data_handler.py` to download Hofstede scores, WALS features, and GDELT data. Use the OpenAI API or other accessible endpoints.
@@ -77,3 +78,4 @@ have been implemented yet.
 
 The next step is to start Phase&nbsp;1 by creating the directory structure
 and installing the required libraries listed in `requirements.txt`.
+Refer to `PHASE1_INSTRUCTIONS.md` for detailed steps to begin Phase 1.
