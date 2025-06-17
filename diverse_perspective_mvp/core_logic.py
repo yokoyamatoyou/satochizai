@@ -5,6 +5,11 @@ from itertools import permutations
 from .data_handler import load_hofstede_scores, load_wals_features
 from .translator import run_translation_chain
 
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_distances
+from sklearn.decomposition import PCA
+import plotly.graph_objects as go
+
 
 def calculate_cds(country1_code: str, country2_code: str) -> float:
     """Calculate Cultural Distance Score (CDS)."""
@@ -84,3 +89,40 @@ def translate_via_diverse_path(
 
     path = select_diverse_languages(source_language, num_pivots)
     return run_translation_chain(source_text, path)
+
+
+# Phase 3: Semantic analysis and visualization
+
+_model = None
+
+def get_embedding(text: str) -> np.ndarray:
+    """Return sentence embedding for the given text."""
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+    emb = _model.encode(text)
+    return np.array(emb)
+
+
+def calculate_semantic_drift(source_text: str, translations: list[tuple[str, str]]):
+    """Return embeddings and cosine distances for translation steps."""
+    texts = [source_text] + [t[1] for t in translations]
+    languages = ["source"] + [t[0] for t in translations]
+    embeddings = [get_embedding(t) for t in texts]
+    drifts = []
+    for i in range(len(embeddings) - 1):
+        d = cosine_distances([embeddings[i]], [embeddings[i + 1]])[0][0]
+        drifts.append(d)
+    return languages, embeddings, drifts
+
+
+def generate_trajectory_plot(languages: list[str], embeddings: list[np.ndarray]):
+    """Generate a 2D trajectory plot from embeddings."""
+    pca = PCA(n_components=2)
+    coords = pca.fit_transform(np.vstack(embeddings))
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(x=coords[:, 0], y=coords[:, 1], mode="lines+markers", text=languages)
+    )
+    fig.update_layout(title="Translation Trajectory", xaxis_title="PC1", yaxis_title="PC2")
+    return fig
