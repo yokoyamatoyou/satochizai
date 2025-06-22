@@ -8,3 +8,5 @@ plotly
 streamlit
 openai
 python-dotenv
+pydicom
+dicomweb-client

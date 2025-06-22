@@ -13,3 +13,9 @@ See MVP_PLAN.md for the development plan.
    ```bash
    streamlit run diverse_perspective_mvp/app.py
    ```
+
+## Medical Image Workflow
+
+The app allows manual upload of DICOM files as well as automatic retrieval via
+DICOMweb. Retrieved images can be reviewed in the built-in viewer. Analysis
+results may be exported back to PACS as DICOM overlays or Structured Reports.
