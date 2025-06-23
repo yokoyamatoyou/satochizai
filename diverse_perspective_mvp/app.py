@@ -11,12 +11,18 @@ if st.button("分析開始"):
     if not source_text.strip():
         st.warning("テキストを入力してください")
     else:
-        st.write("多様な言語経路を選択中...")
-        translations = core_logic.translate_via_diverse_path(source_text, 'en')
+        with st.spinner("翻訳と言語経路の解析中..."):
+            translations = core_logic.translate_via_diverse_path(source_text, 'en')
+            langs, embeddings, drifts = core_logic.calculate_semantic_drift(source_text, translations)
+            fig = core_logic.generate_trajectory_plot(langs, embeddings)
         st.write("翻訳結果:")
         for lang, text in translations:
             st.subheader(lang)
             st.write(text)
+        st.write("## セマンティック・ドリフト")
+        for l, d in zip(langs[1:], drifts):
+            st.write(f"{l}: 距離 {d:.3f}")
+        st.plotly_chart(fig, use_container_width=True)
 
 st.header("医用画像ビューワー")
 uploaded = st.file_uploader("DICOMファイルをアップロード", type=["dcm"])
